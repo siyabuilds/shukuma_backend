@@ -12,10 +12,16 @@ exerciseRouter.get("/", async (req, res) => {
   }
 });
 
+const validDifficulties = ["easy", "medium", "hard"];
+const validTypes = ["strength", "cardio", "core", "mobility", "stretch"];
+
 // GET /api/exercises/difficulty/:level
 exerciseRouter.get("/difficulty/:level", async (req, res) => {
   const { level } = req.params;
   try {
+    if (!validDifficulties.includes(level)) {
+      return res.status(400).json({ message: "Invalid difficulty level" });
+    }
     const exercises = await Exercise.find({ difficulty: level });
     res.json(exercises);
   } catch (error) {
@@ -27,6 +33,9 @@ exerciseRouter.get("/difficulty/:level", async (req, res) => {
 exerciseRouter.get("/type/:type", async (req, res) => {
   const { type } = req.params;
   try {
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: "Invalid exercise type" });
+    }
     const exercises = await Exercise.find({ type });
     res.json(exercises);
   } catch (error) {
