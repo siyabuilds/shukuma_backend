@@ -23,7 +23,7 @@ app.use(express.json());
 
 initDb();
 
-app.get("/", (req, res) => {
+app.get("/", authenticate, (req, res) => {
   res.send("Hello, World!");
 });
 

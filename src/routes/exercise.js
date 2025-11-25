@@ -1,4 +1,4 @@
-import Exercise from "../models/Exercise";
+import Exercise from "../models/Exercise.js";
 import express from "express";
 const exerciseRouter = express.Router();
 
