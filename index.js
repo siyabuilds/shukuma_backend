@@ -6,6 +6,7 @@ import loginRouter from "./src/routes/login.js";
 import { initDb } from "./src/db/connect.js";
 import dailyRouter from "./src/routes/daily.js";
 import exerciseRouter from "./src/routes/exercise.js";
+import progressRouter from "./src/routes/progress.js";
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ app.use("/api/login", loginRouter);
 app.use("/api/daily", dailyRouter);
 
 app.use("/api/exercises", exerciseRouter);
+
+app.use("/api/progress", progressRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
