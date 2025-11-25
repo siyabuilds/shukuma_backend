@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 import registerRouter from "./src/routes/register.js";
 import loginRouter from "./src/routes/login.js";
 import { initDb } from "./src/db/connect.js";
-import "./src/routes/daily.js";
-import "./src/routes/exercise.js";
+import dailyRouter from "./src/routes/daily.js";
+import exerciseRouter from "./src/routes/exercise.js";
 
 dotenv.config();
 
