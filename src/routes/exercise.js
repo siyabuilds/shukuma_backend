@@ -48,4 +48,17 @@ exerciseRouter.get("/:id", async (req, res) => {
   }
 });
 
+// GET /api/exercises/random
+
+exerciseRouter.get("/random", async (req, res) => {
+  try {
+    const count = await Exercise.countDocuments();
+    const random = Math.floor(Math.random() * count);
+    const exercise = await Exercise.findOne().skip(random);
+    res.json(exercise);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default exerciseRouter;
