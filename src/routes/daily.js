@@ -1,5 +1,5 @@
 import express from "express";
-import DailyExercise from "../models/DailyExercise.js";
+import DailyExercise from "../models/Daily.js";
 import Exercise from "../models/Exercise.js";
 
 const dailyRouter = express.Router();
