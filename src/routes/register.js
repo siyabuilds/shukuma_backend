@@ -20,7 +20,7 @@ const validateUsername = (username) => {
 };
 
 // Register route
-registerRouter.post("/register", async (req, res) => {
+registerRouter.post("/", async (req, res) => {
   const { username, password, email } = req.body;
   if (!validateUsername(username)) {
     return res.status(400).json({
