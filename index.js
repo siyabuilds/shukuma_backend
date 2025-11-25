@@ -7,6 +7,11 @@ import { initDb } from "./src/db/connect.js";
 import dailyRouter from "./src/routes/daily.js";
 import exerciseRouter from "./src/routes/exercise.js";
 import progressRouter from "./src/routes/progress.js";
+import { authenticate } from "./src/middleware/auth.js";
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./src/middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -26,11 +31,18 @@ app.use("/api/register", registerRouter);
 
 app.use("/api/login", loginRouter);
 
-app.use("/api/daily", dailyRouter);
+// Protected routes (require authentication)
+app.use("/api/daily", authenticate, dailyRouter);
 
 app.use("/api/exercises", exerciseRouter);
 
-app.use("/api/progress", progressRouter);
+app.use("/api/progress", authenticate, progressRouter);
+
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
+
+// Error handling middleware - must be last
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
