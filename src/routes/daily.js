@@ -21,8 +21,22 @@ dailyRouter.get("/", async (req, res) => {
 
     // 2. If none exists, generate a new card
     const count = await Exercise.countDocuments();
+
+    if (count === 0) {
+      return res.status(404).json({
+        message:
+          "No exercises available. Please add exercises to the database first.",
+      });
+    }
+
     const random = Math.floor(Math.random() * count);
     const exercise = await Exercise.findOne().skip(random);
+
+    if (!exercise) {
+      return res.status(404).json({
+        message: "Failed to fetch exercise. Please try again.",
+      });
+    }
 
     daily = await DailyExercise.create({
       userId,
