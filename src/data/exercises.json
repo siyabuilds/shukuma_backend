@@ -400,16 +400,16 @@
     "reps": 22
   },
   {
-    "name": "Push-up Toe Touches",
-    "description": "Perform 24 reps of Push-up Toe Touches",
+    "name": "Decline Push Ups",
+    "description": "Perform 24 reps of Decline Push Ups",
     "type": "upperbody",
     "difficulty": "hard",
     "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_051.png",
     "reps": 24
   },
   {
-    "name": "Decline Push Ups",
-    "description": "Perform 26 reps of Decline Push Ups",
+    "name": "Push Ups",
+    "description": "Perform 26 reps of Push Ups",
     "type": "upperbody",
     "difficulty": "hard",
     "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_052.png",
