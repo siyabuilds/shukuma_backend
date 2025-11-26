@@ -15,7 +15,7 @@ const ExerciseSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["strength", "cardio", "core", "mobility", "stretch"],
+      enum: ["core", "lowerbody", "cardio", "upperbody"],
       required: true,
     },
     difficulty: {

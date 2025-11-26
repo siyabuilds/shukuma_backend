@@ -1,0 +1,418 @@
+[
+  {
+    "name": "Situps",
+    "description": "Perform 2 reps of Situps",
+    "type": "core",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_001.png",
+    "reps": 2
+  },
+  {
+    "name": "Situps",
+    "description": "Perform 4 reps of Situps",
+    "type": "core",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_002.png",
+    "reps": 4
+  },
+  {
+    "name": "Plank To Pushup",
+    "description": "Perform 6 reps of Plank To Pushup",
+    "type": "core",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_003.png",
+    "reps": 6
+  },
+  {
+    "name": "V-Ups",
+    "description": "Perform 8 reps of V-Ups",
+    "type": "core",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_004.png",
+    "reps": 8
+  },
+  {
+    "name": "Crab Toe Touchers",
+    "description": "Perform 5 reps of Crab Toe Touchers",
+    "type": "core",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_005.png",
+    "reps": 5
+  },
+  {
+    "name": "Crab Toe Touchers",
+    "description": "Perform 10 reps of Crab Toe Touchers",
+    "type": "core",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_006.png",
+    "reps": 10
+  },
+  {
+    "name": "Situps",
+    "description": "Perform 14 reps of Situps",
+    "type": "core",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_007.png",
+    "reps": 14
+  },
+  {
+    "name": "Situps",
+    "description": "Perform 16 reps of Situps",
+    "type": "core",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_008.png",
+    "reps": 16
+  },
+  {
+    "name": "Plank To Pushup",
+    "description": "Perform 18 reps of Plank To Pushup",
+    "type": "core",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_009.png",
+    "reps": 18
+  },
+  {
+    "name": "V-Ups",
+    "description": "Perform 20 reps of V-Ups",
+    "type": "core",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_010.png",
+    "reps": 20
+  },
+  {
+    "name": "Crab Toe Touchers",
+    "description": "Perform 22 reps of Crab Toe Touchers",
+    "type": "core",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_011.png",
+    "reps": 22
+  },
+  {
+    "name": "Crab Toe Touchers",
+    "description": "Perform 24 reps of Crab Toe Touchers",
+    "type": "core",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_012.png",
+    "reps": 24
+  },
+  {
+    "name": "Situps",
+    "description": "Perform 26 reps of Situps",
+    "type": "core",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_013.png",
+    "reps": 26
+  },
+  {
+    "name": "Squats",
+    "description": "Perform 2 reps of Squats",
+    "type": "lowerbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_014.png",
+    "reps": 2
+  },
+  {
+    "name": "Squats",
+    "description": "Perform 4 reps of Squats",
+    "type": "lowerbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_015.png",
+    "reps": 4
+  },
+  {
+    "name": "Prison Squats",
+    "description": "Perform 6 reps of Prison Squats",
+    "type": "lowerbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_016.png",
+    "reps": 6
+  },
+  {
+    "name": "Prison Squats",
+    "description": "Perform 8 reps of Prison Squats",
+    "type": "lowerbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_017.png",
+    "reps": 8
+  },
+  {
+    "name": "Jumping Split Lunges",
+    "description": "Perform 10 reps of Jumping Split Lunges",
+    "type": "lowerbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_018.png",
+    "reps": 10
+  },
+  {
+    "name": "Cursty Lunges",
+    "description": "Perform 12 reps of Cursty Lunges",
+    "type": "lowerbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_019.png",
+    "reps": 12
+  },
+  {
+    "name": "Squats",
+    "description": "Perform 14 reps of Squats",
+    "type": "lowerbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_020.png",
+    "reps": 14
+  },
+  {
+    "name": "Squats",
+    "description": "Perform 16 reps of Squats",
+    "type": "lowerbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_021.png",
+    "reps": 16
+  },
+  {
+    "name": "Prison Squats",
+    "description": "Perform 18 reps of Prison Squats",
+    "type": "lowerbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_022.png",
+    "reps": 18
+  },
+  {
+    "name": "Prison Squats",
+    "description": "Perform 20 reps of Prison Squats",
+    "type": "lowerbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_023.png",
+    "reps": 20
+  },
+  {
+    "name": "Jumping Split Lunges",
+    "description": "Perform 22 reps of Jumping Split Lunges",
+    "type": "lowerbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_024.png",
+    "reps": 22
+  },
+  {
+    "name": "Cursty Lunges",
+    "description": "Perform 24 reps of Cursty Lunges",
+    "type": "lowerbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_025.png",
+    "reps": 24
+  },
+  {
+    "name": "Squats",
+    "description": "Perform 26 reps of Squats",
+    "type": "lowerbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_026.png",
+    "reps": 26
+  },
+  {
+    "name": "Burpees",
+    "description": "Perform 2 reps of Burpees",
+    "type": "cardio",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_027.png",
+    "reps": 2
+  },
+  {
+    "name": "Burpees",
+    "description": "Perform 4 reps of Burpees",
+    "type": "cardio",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_028.png",
+    "reps": 4
+  },
+  {
+    "name": "Jumping Jacks",
+    "description": "Perform 6 reps of Jumping Jacks",
+    "type": "cardio",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_029.png",
+    "reps": 6
+  },
+  {
+    "name": "Jumping Jacks",
+    "description": "Perform 8 reps of Jumping Jacks",
+    "type": "cardio",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_030.png",
+    "reps": 8
+  },
+  {
+    "name": "Reverse Burpees",
+    "description": "Perform 10 reps of Reverse Burpees",
+    "type": "cardio",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_031.png",
+    "reps": 10
+  },
+  {
+    "name": "Tuck Jumps",
+    "description": "Perform 12 reps of Tuck Jumps",
+    "type": "cardio",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_032.png",
+    "reps": 12
+  },
+  {
+    "name": "Burpees",
+    "description": "Perform 14 reps of Burpees",
+    "type": "cardio",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_033.png",
+    "reps": 14
+  },
+  {
+    "name": "Burpees",
+    "description": "Perform 16 reps of Burpees",
+    "type": "cardio",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_034.png",
+    "reps": 16
+  },
+  {
+    "name": "Jumping Jacks",
+    "description": "Perform 18 reps of Jumping Jacks",
+    "type": "cardio",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_035.png",
+    "reps": 18
+  },
+  {
+    "name": "Jumping Jacks",
+    "description": "Perform 20 reps of Jumping Jacks",
+    "type": "cardio",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_036.png",
+    "reps": 20
+  },
+  {
+    "name": "Reverse Burpees",
+    "description": "Perform 22 reps of Reverse Burpees",
+    "type": "cardio",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_037.png",
+    "reps": 22
+  },
+  {
+    "name": "Tuck Jumps",
+    "description": "Perform 24 reps of Tuck Jumps",
+    "type": "cardio",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_038.png",
+    "reps": 24
+  },
+  {
+    "name": "Burpees",
+    "description": "Perform 26 reps of Burpees",
+    "type": "cardio",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_039.png",
+    "reps": 26
+  },
+  {
+    "name": "Push Ups",
+    "description": "Perform 2 reps of Push Ups",
+    "type": "upperbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_040.png",
+    "reps": 2
+  },
+  {
+    "name": "Push Ups",
+    "description": "Perform 4 reps of Push Ups",
+    "type": "upperbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_041.png",
+    "reps": 4
+  },
+  {
+    "name": "Pike Push Ups",
+    "description": "Perform 6 reps of Pike Push Ups",
+    "type": "upperbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_042.png",
+    "reps": 6
+  },
+  {
+    "name": "Pike Push Ups",
+    "description": "Perform 8 reps of Pike Push Ups",
+    "type": "upperbody",
+    "difficulty": "easy",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_043.png",
+    "reps": 8
+  },
+  {
+    "name": "Push-up Toe Touches",
+    "description": "Perform 10 reps of Push-up Toe Touches",
+    "type": "upperbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_044.png",
+    "reps": 10
+  },
+  {
+    "name": "Decline Push Ups",
+    "description": "Perform 12 reps of Decline Push Ups",
+    "type": "upperbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_045.png",
+    "reps": 12
+  },
+  {
+    "name": "Push Ups",
+    "description": "Perform 14 reps of Push Ups",
+    "type": "upperbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_046.png",
+    "reps": 14
+  },
+  {
+    "name": "Push Ups",
+    "description": "Perform 16 reps of Push Ups",
+    "type": "upperbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_047.png",
+    "reps": 16
+  },
+  {
+    "name": "Pike Push Ups",
+    "description": "Perform 18 reps of Pike Push Ups",
+    "type": "upperbody",
+    "difficulty": "medium",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_048.png",
+    "reps": 18
+  },
+  {
+    "name": "Pike Push Ups",
+    "description": "Perform 20 reps of Pike Push Ups",
+    "type": "upperbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_049.png",
+    "reps": 20
+  },
+  {
+    "name": "Push-up Toe Touches",
+    "description": "Perform 22 reps of Push-up Toe Touches",
+    "type": "upperbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_050.png",
+    "reps": 22
+  },
+  {
+    "name": "Push-up Toe Touches",
+    "description": "Perform 24 reps of Push-up Toe Touches",
+    "type": "upperbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_051.png",
+    "reps": 24
+  },
+  {
+    "name": "Decline Push Ups",
+    "description": "Perform 26 reps of Decline Push Ups",
+    "type": "upperbody",
+    "difficulty": "hard",
+    "demonstration": "https://shukuma.syd1.digitaloceanspaces.com/output_052.png",
+    "reps": 26
+  }
+]
