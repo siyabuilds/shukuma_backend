@@ -7,6 +7,7 @@ import { initDb } from "./src/db/connect.js";
 import dailyRouter from "./src/routes/daily.js";
 import exerciseRouter from "./src/routes/exercise.js";
 import progressRouter from "./src/routes/progress.js";
+import communityRouter from "./src/routes/community.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
   errorHandler,
@@ -37,6 +38,9 @@ app.use("/api/daily", authenticate, dailyRouter);
 app.use("/api/exercises", exerciseRouter);
 
 app.use("/api/progress", authenticate, progressRouter);
+
+// Community / social routes (requires authentication)
+app.use("/api/community", authenticate, communityRouter);
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);
