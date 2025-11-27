@@ -284,7 +284,7 @@ router.get("/profile/:username", async (req, res) => {
     });
 
     // Determine friend request status
-    let friendRequestStatus = "none"; // none, pending, accepted, can_request
+    let friendRequestStatus = "none";
     if (currentUserId.equals(profileUserId)) {
       friendRequestStatus = "self";
     } else {
@@ -296,7 +296,17 @@ router.get("/profile/:username", async (req, res) => {
       });
 
       if (existingRequest) {
-        friendRequestStatus = existingRequest.status;
+        if (existingRequest.status === "accepted") {
+          friendRequestStatus = "accepted";
+        } else if (existingRequest.status === "pending") {
+          if (existingRequest.recipient.equals(currentUserId)) {
+            friendRequestStatus = "can_accept";
+          } else {
+            friendRequestStatus = "pending";
+          }
+        } else {
+          friendRequestStatus = existingRequest.status;
+        }
       } else {
         friendRequestStatus = "can_request";
       }
