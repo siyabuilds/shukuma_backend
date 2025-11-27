@@ -140,7 +140,8 @@ router.post("/like/:postId", async (req, res) => {
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     // Check if already liked
-    if (post.likes.includes(userId)) {
+    const alreadyLiked = post.likes.some((id) => id.equals(userId));
+    if (alreadyLiked) {
       return res.status(400).json({ message: "Already liked this post" });
     }
 
@@ -164,7 +165,8 @@ router.post("/unlike/:postId", async (req, res) => {
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     // Check if not liked
-    if (!post.likes.includes(userId)) {
+    const isLiked = post.likes.some((id) => id.equals(userId));
+    if (!isLiked) {
       return res.status(400).json({ message: "Post not liked yet" });
     }
 
@@ -174,6 +176,50 @@ router.post("/unlike/:postId", async (req, res) => {
     res.json({ message: "Post unliked", likes: post.likes.length });
   } catch (err) {
     console.error("Unlike post error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get friends list: /api/community/friends
+router.get("/friends", async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Get all accepted friendships (bidirectional)
+    const friendships = await Friend.find({
+      $or: [
+        { requester: userId, status: "accepted" },
+        { recipient: userId, status: "accepted" },
+      ],
+    }).populate([
+      { path: "requester", select: "_id username email" },
+      { path: "recipient", select: "_id username email" },
+    ]);
+
+    // Also get pending requests where current user is recipient
+    const pendingRequests = await Friend.find({
+      recipient: userId,
+      status: "pending",
+    }).populate([
+      { path: "requester", select: "_id username email" },
+      { path: "recipient", select: "_id username email" },
+    ]);
+
+    // Also get sent requests where current user is requester
+    const sentRequests = await Friend.find({
+      requester: userId,
+      status: "pending",
+    }).populate([
+      { path: "requester", select: "_id username email" },
+      { path: "recipient", select: "_id username email" },
+    ]);
+
+    // Combine all friend relationships
+    const allFriends = [...friendships, ...pendingRequests, ...sentRequests];
+
+    res.json(allFriends);
+  } catch (err) {
+    console.error("Friends list error:", err);
     res.status(500).json({ message: err.message });
   }
 });
