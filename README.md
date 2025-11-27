@@ -86,6 +86,18 @@ backend/
 - `GET /api/progress/:userId/today` - Get today's completed workouts
 - `GET /api/progress/:userId/summary` - Get total workouts and current streak
 
+### Community & Social (Protected)
+
+- `POST /api/community/share` - Create a post sharing progress/achievements
+- `GET /api/community/feed` - Get recent posts from all users (limit 50)
+- `POST /api/community/like/:postId` - Like a post
+- `POST /api/community/unlike/:postId` - Unlike a post
+- `POST /api/community/friend-request` - Send friend request to a user by username
+- `POST /api/community/friend-accept` - Accept or reject a friend request
+- `POST /api/community/challenge` - Send a challenge to another user
+- `GET /api/community/challenges` - Get all challenges involving authenticated user
+- `GET /api/community/profile/:username` - Get user profile with stats and friend info
+
 ## 📦 Data Models
 
 ### User
@@ -134,6 +146,43 @@ backend/
   completedReps: Number,   // Actual reps completed
   completedSeconds: Number,// Actual duration completed
   notes: String,           // User notes
+}
+```
+
+### Post
+
+```js
+{
+  userId: ObjectId,        // Reference to User (post author)
+  content: String,         // Post content
+  type: String,            // progress | achievement | announcement (default: progress)
+  meta: Mixed,             // Optional metadata (e.g., { reps: 20 })
+  likes: [ObjectId],       // Array of User IDs who liked this post
+  timestamps: true
+}
+```
+
+### Friend
+
+```js
+{
+  requester: ObjectId,     // Reference to User who sent request
+  recipient: ObjectId,     // Reference to User who received request
+  status: String,          // pending | accepted | rejected
+  timestamps: true
+}
+```
+
+### Challenge
+
+```js
+{
+  fromUser: ObjectId,      // Reference to User who sent challenge
+  toUser: ObjectId,        // Reference to User who received challenge
+  exerciseId: ObjectId,    // Reference to Exercise (optional)
+  message: String,         // Challenge message
+  status: String,          // pending | accepted | declined
+  timestamps: true
 }
 ```
 
@@ -189,6 +238,7 @@ npm start
 ## 🌱 Future Plans
 
 - Exercise recommendation algorithm based on user progress
-- Social features (friend workouts, challenges)
 - Advanced analytics (weekly/monthly trends, muscle group distribution)
 - REST API rate limiting and caching with Redis
+- Notifications for friend requests and challenges
+- Challenge completion tracking with proof of progress

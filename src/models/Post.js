@@ -10,6 +10,8 @@ const postSchema = new Schema(
     type: { type: String, default: "progress" },
     // optional metadata (e.g., { reps: 20 } )
     meta: { type: Schema.Types.Mixed },
+    // array of user IDs who liked this post
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

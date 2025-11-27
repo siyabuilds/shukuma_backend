@@ -130,4 +130,148 @@ router.get("/challenges", async (req, res) => {
   }
 });
 
+// Like a post: /api/community/like/:postId
+router.post("/like/:postId", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    // Check if already liked
+    if (post.likes.includes(userId)) {
+      return res.status(400).json({ message: "Already liked this post" });
+    }
+
+    post.likes.push(userId);
+    await post.save();
+
+    res.json({ message: "Post liked", likes: post.likes.length });
+  } catch (err) {
+    console.error("Like post error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Unlike a post: /api/community/unlike/:postId
+router.post("/unlike/:postId", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    // Check if not liked
+    if (!post.likes.includes(userId)) {
+      return res.status(400).json({ message: "Post not liked yet" });
+    }
+
+    post.likes = post.likes.filter((id) => !id.equals(userId));
+    await post.save();
+
+    res.json({ message: "Post unliked", likes: post.likes.length });
+  } catch (err) {
+    console.error("Unlike post error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get user profile: /api/community/profile/:username
+router.get("/profile/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const currentUserId = req.user._id;
+
+    // Find the profile user
+    const profileUser = await User.findOne({ username }).select("-password");
+    if (!profileUser)
+      return res.status(404).json({ message: "User not found" });
+
+    const profileUserId = profileUser._id;
+
+    // Get accepted friends (bidirectional)
+    const friendships = await Friend.find({
+      $or: [
+        { requester: profileUserId, status: "accepted" },
+        { recipient: profileUserId, status: "accepted" },
+      ],
+    }).populate(["requester", "recipient"]);
+
+    const friends = friendships.map((fr) => {
+      if (fr.requester._id.equals(profileUserId)) {
+        return { _id: fr.recipient._id, username: fr.recipient.username };
+      } else {
+        return { _id: fr.requester._id, username: fr.requester.username };
+      }
+    });
+
+    const friendCount = friends.length;
+
+    // Get progress stats
+    const Progress = (await import("../models/Progress.js")).default;
+    const allProgress = await Progress.find({ userId: profileUserId }).sort({
+      date: 1,
+    });
+    const totalCompleted = allProgress.length;
+
+    // Calculate streak
+    let streak = 0;
+    let lastDate = null;
+
+    allProgress.forEach((p) => {
+      const pDate = new Date(p.date).toISOString().split("T")[0];
+      if (!lastDate) {
+        streak = 1;
+      } else {
+        const prev = new Date(lastDate);
+        const curr = new Date(pDate);
+        const diff = (curr - prev) / (1000 * 60 * 60 * 24);
+        if (diff === 1) {
+          streak += 1;
+        } else if (diff > 1) {
+          streak = 1;
+        }
+      }
+      lastDate = pDate;
+    });
+
+    // Determine friend request status
+    let friendRequestStatus = "none"; // none, pending, accepted, can_request
+    if (currentUserId.equals(profileUserId)) {
+      friendRequestStatus = "self";
+    } else {
+      const existingRequest = await Friend.findOne({
+        $or: [
+          { requester: currentUserId, recipient: profileUserId },
+          { requester: profileUserId, recipient: currentUserId },
+        ],
+      });
+
+      if (existingRequest) {
+        friendRequestStatus = existingRequest.status;
+      } else {
+        friendRequestStatus = "can_request";
+      }
+    }
+
+    res.json({
+      user: {
+        _id: profileUser._id,
+        username: profileUser.username,
+        email: profileUser.email,
+      },
+      friends,
+      friendCount,
+      exercisesCompleted: totalCompleted,
+      currentStreak: streak,
+      friendRequestStatus,
+    });
+  } catch (err) {
+    console.error("Profile error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
