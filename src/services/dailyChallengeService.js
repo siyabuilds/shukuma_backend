@@ -67,6 +67,11 @@ function selectChallengeTemplate() {
 
 // Generate a daily challenge for a user
 export async function generateDailyChallenge(userId) {
+  if (!userId) {
+    console.log("Daily challenge generation skipped - no userId provided");
+    return null;
+  }
+
   const today = new Date().toISOString().split("T")[0];
 
   const existing = await DailyChallenge.findOne({ userId, date: today });

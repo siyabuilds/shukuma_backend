@@ -9,7 +9,7 @@ import exerciseRouter from "./src/routes/exercise.js";
 import progressRouter from "./src/routes/progress.js";
 import communityRouter from "./src/routes/community.js";
 import dailyChallengeRouter from "./src/routes/dailyChallenge.js";
-import { generateDailyChallenge } from "./src/services/dailyChallengeService.js";
+import journalRouter from "./src/routes/journal.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
   errorHandler,
@@ -46,6 +46,9 @@ app.use("/api/progress", authenticate, progressRouter);
 
 // Community / social routes (requires authentication)
 app.use("/api/community", authenticate, communityRouter);
+
+// Journal routes (requires authentication)
+app.use("/api/journal", authenticate, journalRouter);
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);
