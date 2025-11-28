@@ -9,6 +9,7 @@ import exerciseRouter from "./src/routes/exercise.js";
 import progressRouter from "./src/routes/progress.js";
 import communityRouter from "./src/routes/community.js";
 import dailyChallengeRouter from "./src/routes/dailyChallenge.js";
+import { startDailyChallengeScheduler } from "./src/services/challengeScheduler.js";
 import journalRouter from "./src/routes/journal.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
@@ -58,4 +59,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  startDailyChallengeScheduler();
 });
