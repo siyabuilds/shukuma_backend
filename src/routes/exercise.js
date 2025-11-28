@@ -43,7 +43,22 @@ exerciseRouter.get("/type/:type", async (req, res) => {
   }
 });
 
-// GET /api/exercises/:id
+// GET /api/exercises/random
+exerciseRouter.get("/random", async (req, res) => {
+  try {
+    const count = await Exercise.countDocuments();
+    if (count === 0) {
+      return res.status(404).json({ message: "No exercises available" });
+    }
+    const random = Math.floor(Math.random() * count);
+    const exercise = await Exercise.findOne().skip(random);
+    res.json(exercise);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /api/exercises/:id - Must be last due to wildcard parameter
 exerciseRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -51,19 +66,6 @@ exerciseRouter.get("/:id", async (req, res) => {
     if (!exercise) {
       return res.status(404).json({ message: "Exercise not found" });
     }
-    res.json(exercise);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// GET /api/exercises/random
-
-exerciseRouter.get("/random", async (req, res) => {
-  try {
-    const count = await Exercise.countDocuments();
-    const random = Math.floor(Math.random() * count);
-    const exercise = await Exercise.findOne().skip(random);
     res.json(exercise);
   } catch (error) {
     res.status(500).json({ message: error.message });
