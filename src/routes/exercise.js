@@ -1,5 +1,9 @@
 import Exercise from "../models/Exercise.js";
+import Progress from "../models/Progress.js";
+import { updateChallengeProgress } from "../services/dailyChallengeService.js";
 import express from "express";
+import { authenticate } from "../middleware/auth.js";
+
 const exerciseRouter = express.Router();
 
 // GET /api/exercises
@@ -68,6 +72,65 @@ exerciseRouter.get("/:id", async (req, res) => {
     }
     res.json(exercise);
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/exercises/:id/complete - Mark an exercise as complete (requires auth)
+exerciseRouter.post("/:id/complete", authenticate, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user._id;
+
+  try {
+    // Verify exercise exists
+    const exercise = await Exercise.findById(id);
+    if (!exercise) {
+      return res.status(404).json({ message: "Exercise not found" });
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // Check if already completed today
+    const existingProgress = await Progress.findOne({
+      userId,
+      exerciseId: id,
+      date: today,
+    });
+
+    if (existingProgress) {
+      return res.status(400).json({
+        message: "You already completed this exercise today!",
+        progress: existingProgress,
+      });
+    }
+
+    // Create progress record
+    const progress = await Progress.create({
+      userId,
+      exerciseId: id,
+      date: today,
+      completedReps: exercise.reps || 0,
+      completedSeconds: exercise.duration || 0,
+      notes: `Completed ${exercise.name}`,
+    });
+
+    // Update daily challenge progress
+    try {
+      await updateChallengeProgress(userId, "exercise_completed", {
+        exerciseId: id,
+      });
+    } catch (challengeError) {
+      console.error("Error updating challenge progress:", challengeError);
+      // Don't fail the completion if challenge update fails
+    }
+
+    res.status(201).json({
+      message: `Great job! ${exercise.name} completed! 💪`,
+      progress,
+      exercise,
+    });
+  } catch (error) {
+    console.error("Exercise complete error:", error);
     res.status(500).json({ message: error.message });
   }
 });
