@@ -32,7 +32,8 @@ router.get("/feed", async (req, res) => {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
       .limit(50)
-      .populate("userId", "username");
+      .populate("userId", "username")
+      .populate("comments.userId", "username");
     res.json(posts);
   } catch (err) {
     console.error("Feed error:", err);
@@ -520,6 +521,99 @@ router.get("/profile/:username", async (req, res) => {
     });
   } catch (err) {
     console.error("Profile error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add a comment to a post: /api/community/comment/:postId
+router.post("/comment/:postId", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { postId } = req.params;
+    const { content } = req.body;
+
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ message: "Comment content is required" });
+    }
+
+    if (content.length > 500) {
+      return res
+        .status(400)
+        .json({ message: "Comment must be 500 characters or less" });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    post.comments.push({ userId, content: content.trim() });
+    await post.save();
+
+    // Populate the newly added comment
+    const updatedPost = await Post.findById(postId)
+      .populate("userId", "username")
+      .populate("comments.userId", "username");
+
+    const newComment = updatedPost.comments[updatedPost.comments.length - 1];
+
+    res.status(201).json(newComment);
+  } catch (err) {
+    console.error("Add comment error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get comments for a post: /api/community/comments/:postId
+router.get("/comments/:postId", async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId).populate(
+      "comments.userId",
+      "username"
+    );
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.json(post.comments);
+  } catch (err) {
+    console.error("Get comments error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete a comment: /api/community/comment/:postId/:commentId
+router.delete("/comment/:postId/:commentId", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { postId, commentId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Only allow comment author or post owner to delete
+    if (!comment.userId.equals(userId) && !post.userId.equals(userId)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this comment" });
+    }
+
+    post.comments.pull(commentId);
+    await post.save();
+
+    res.json({ message: "Comment deleted" });
+  } catch (err) {
+    console.error("Delete comment error:", err);
     res.status(500).json({ message: err.message });
   }
 });
