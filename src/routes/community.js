@@ -92,7 +92,7 @@ router.post("/friend-accept", async (req, res) => {
 router.post("/challenge", async (req, res) => {
   try {
     const fromUser = req.user._id;
-    const { toUsername, exerciseId, message } = req.body;
+    const { toUsername, exerciseId, message, durationDays } = req.body;
     if (!toUsername)
       return res.status(400).json({ message: "toUsername required" });
 
@@ -100,13 +100,54 @@ router.post("/challenge", async (req, res) => {
     if (!toUser)
       return res.status(404).json({ message: "Recipient user not found" });
 
+    // Cannot challenge yourself
+    if (toUser._id.equals(fromUser)) {
+      return res.status(400).json({ message: "Cannot challenge yourself" });
+    }
+
+    // Check if they are friends (bidirectional)
+    const friendship = await Friend.findOne({
+      $or: [
+        { requester: fromUser, recipient: toUser._id, status: "accepted" },
+        { requester: toUser._id, recipient: fromUser, status: "accepted" },
+      ],
+    });
+
+    if (!friendship) {
+      return res
+        .status(403)
+        .json({ message: "You can only challenge friends" });
+    }
+
+    // Check if the recipient already has an active challenge
+    const activeChallenge = await Challenge.findOne({
+      toUser: toUser._id,
+      status: "accepted",
+      isComplete: false,
+    });
+
+    if (activeChallenge) {
+      return res.status(400).json({
+        message:
+          "This user already has an active challenge they need to complete first",
+      });
+    }
+
     const challenge = await Challenge.create({
       fromUser,
       toUser: toUser._id,
-      exerciseId,
+      exerciseId: exerciseId || null,
       message,
+      durationDays: durationDays || 7,
     });
-    res.status(201).json(challenge);
+
+    const populated = await challenge.populate([
+      { path: "fromUser", select: "username" },
+      { path: "toUser", select: "username" },
+      { path: "exerciseId", select: "name" },
+    ]);
+
+    res.status(201).json(populated);
   } catch (err) {
     console.error("Challenge error:", err);
     res.status(500).json({ message: err.message });
@@ -122,10 +163,155 @@ router.get("/challenges", async (req, res) => {
     })
       .sort({ createdAt: -1 })
       .populate("fromUser", "username")
-      .populate("toUser", "username");
+      .populate("toUser", "username")
+      .populate("exerciseId", "name description category");
     res.json(challenges);
   } catch (err) {
     console.error("Get challenges error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Accept or decline a challenge: /api/community/challenge-respond
+router.post("/challenge-respond", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { challengeId, accept } = req.body;
+
+    if (!challengeId) {
+      return res.status(400).json({ message: "challengeId required" });
+    }
+
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+
+    // Only the recipient can respond
+    if (!challenge.toUser.equals(userId)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to respond to this challenge" });
+    }
+
+    // Can only respond to pending challenges
+    if (challenge.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "Challenge is no longer pending" });
+    }
+
+    if (accept) {
+      // Check if user already has an active challenge
+      const activeChallenge = await Challenge.findOne({
+        toUser: userId,
+        status: "accepted",
+        isComplete: false,
+        _id: { $ne: challengeId },
+      });
+
+      if (activeChallenge) {
+        return res.status(400).json({
+          message:
+            "You already have an active challenge. Complete it first before accepting a new one.",
+        });
+      }
+
+      challenge.status = "accepted";
+      challenge.acceptedAt = new Date();
+      // Calculate deadline
+      const deadline = new Date();
+      deadline.setDate(deadline.getDate() + (challenge.durationDays || 7));
+      challenge.deadline = deadline;
+    } else {
+      challenge.status = "declined";
+    }
+
+    await challenge.save();
+
+    const populated = await challenge.populate([
+      { path: "fromUser", select: "username" },
+      { path: "toUser", select: "username" },
+      { path: "exerciseId", select: "name description category" },
+    ]);
+
+    res.json(populated);
+  } catch (err) {
+    console.error("Challenge respond error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Complete a challenge: /api/community/challenge-complete
+router.post("/challenge-complete", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { challengeId } = req.body;
+
+    if (!challengeId) {
+      return res.status(400).json({ message: "challengeId required" });
+    }
+
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+
+    // Only the recipient can complete the challenge
+    if (!challenge.toUser.equals(userId)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to complete this challenge" });
+    }
+
+    // Can only complete accepted challenges
+    if (challenge.status !== "accepted") {
+      return res
+        .status(400)
+        .json({ message: "Challenge must be accepted before completing" });
+    }
+
+    // Check if already completed
+    if (challenge.isComplete) {
+      return res
+        .status(400)
+        .json({ message: "Challenge is already completed" });
+    }
+
+    challenge.status = "completed";
+    challenge.isComplete = true;
+    challenge.completedAt = new Date();
+    await challenge.save();
+
+    const populated = await challenge.populate([
+      { path: "fromUser", select: "username" },
+      { path: "toUser", select: "username" },
+      { path: "exerciseId", select: "name description category" },
+    ]);
+
+    res.json(populated);
+  } catch (err) {
+    console.error("Challenge complete error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get user's active challenge: /api/community/active-challenge
+router.get("/active-challenge", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const activeChallenge = await Challenge.findOne({
+      toUser: userId,
+      status: "accepted",
+      isComplete: false,
+    })
+      .populate("fromUser", "username")
+      .populate("toUser", "username")
+      .populate("exerciseId", "name description category");
+
+    res.json(activeChallenge || null);
+  } catch (err) {
+    console.error("Get active challenge error:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -312,6 +498,13 @@ router.get("/profile/:username", async (req, res) => {
       }
     }
 
+    // Get completed challenges count
+    const completedChallenges = await Challenge.countDocuments({
+      toUser: profileUserId,
+      status: "completed",
+      isComplete: true,
+    });
+
     res.json({
       user: {
         _id: profileUser._id,
@@ -323,6 +516,7 @@ router.get("/profile/:username", async (req, res) => {
       exercisesCompleted: totalCompleted,
       currentStreak: streak,
       friendRequestStatus,
+      completedChallenges,
     });
   } catch (err) {
     console.error("Profile error:", err);

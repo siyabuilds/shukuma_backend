@@ -10,9 +10,14 @@ const challengeSchema = new Schema(
     message: { type: String },
     status: {
       type: String,
-      enum: ["pending", "accepted", "declined"],
+      enum: ["pending", "accepted", "declined", "completed"],
       default: "pending",
     },
+    isComplete: { type: Boolean, default: false },
+    durationDays: { type: Number, default: 7 },
+    acceptedAt: { type: Date },
+    completedAt: { type: Date },
+    deadline: { type: Date },
   },
   { timestamps: true }
 );
