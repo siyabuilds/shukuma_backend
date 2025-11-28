@@ -8,6 +8,7 @@ import dailyRouter from "./src/routes/daily.js";
 import exerciseRouter from "./src/routes/exercise.js";
 import progressRouter from "./src/routes/progress.js";
 import communityRouter from "./src/routes/community.js";
+import dailyChallengeRouter from "./src/routes/dailyChallenge.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
   errorHandler,
@@ -34,6 +35,9 @@ app.use("/api/login", loginRouter);
 
 // Protected routes (require authentication)
 app.use("/api/daily", authenticate, dailyRouter);
+
+// Daily Challenge routes (requires authentication)
+app.use("/api/daily-challenge", authenticate, dailyChallengeRouter);
 
 app.use("/api/exercises", exerciseRouter);
 

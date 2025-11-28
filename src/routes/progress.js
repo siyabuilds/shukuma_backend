@@ -1,5 +1,6 @@
 import express from "express";
 import Progress from "../models/Progress.js";
+import { updateChallengeProgress } from "../services/dailyChallengeService.js";
 
 const progressRouter = express.Router();
 
@@ -32,6 +33,16 @@ progressRouter.post("/", async (req, res) => {
       completedSeconds,
       notes,
     });
+
+    // Update daily challenge progress
+    try {
+      await updateChallengeProgress(userId, "exercise_completed", {
+        exerciseId,
+      });
+    } catch (challengeError) {
+      console.error("Error updating challenge progress:", challengeError);
+      // Don't fail the progress creation if challenge update fails
+    }
 
     res.status(201).json(progress);
   } catch (error) {
