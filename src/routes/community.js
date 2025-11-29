@@ -3,6 +3,7 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Friend from "../models/Friend.js";
 import Challenge from "../models/Challenge.js";
+import Exercise from "../models/Exercise.js";
 
 const router = express.Router();
 
@@ -93,7 +94,13 @@ router.post("/friend-accept", async (req, res) => {
 router.post("/challenge", async (req, res) => {
   try {
     const fromUser = req.user._id;
-    const { toUsername, exerciseId, message, durationDays } = req.body;
+    const {
+      toUsername,
+      exerciseId,
+      message,
+      durationDays,
+      isWorkoutAssignment,
+    } = req.body;
     if (!toUsername)
       return res.status(400).json({ message: "toUsername required" });
 
@@ -134,18 +141,39 @@ router.post("/challenge", async (req, res) => {
       });
     }
 
+    // Fetch exercise details if exerciseId is provided
+    let exerciseSnapshot = null;
+    if (exerciseId) {
+      const exercise = await Exercise.findById(exerciseId);
+      if (exercise) {
+        exerciseSnapshot = {
+          name: exercise.name,
+          type: exercise.type,
+          difficulty: exercise.difficulty,
+          duration: exercise.duration || null,
+          reps: exercise.reps || null,
+          description: exercise.description || null,
+        };
+      }
+    }
+
     const challenge = await Challenge.create({
       fromUser,
       toUser: toUser._id,
       exerciseId: exerciseId || null,
+      exerciseSnapshot,
       message,
       durationDays: durationDays || 7,
+      isWorkoutAssignment: isWorkoutAssignment || !!exerciseId,
     });
 
     const populated = await challenge.populate([
       { path: "fromUser", select: "username" },
       { path: "toUser", select: "username" },
-      { path: "exerciseId", select: "name" },
+      {
+        path: "exerciseId",
+        select: "name description type difficulty duration reps",
+      },
     ]);
 
     res.status(201).json(populated);
@@ -165,7 +193,7 @@ router.get("/challenges", async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("fromUser", "username")
       .populate("toUser", "username")
-      .populate("exerciseId", "name description category");
+      .populate("exerciseId", "name description type difficulty duration reps");
     res.json(challenges);
   } catch (err) {
     console.error("Get challenges error:", err);
@@ -233,7 +261,10 @@ router.post("/challenge-respond", async (req, res) => {
     const populated = await challenge.populate([
       { path: "fromUser", select: "username" },
       { path: "toUser", select: "username" },
-      { path: "exerciseId", select: "name description category" },
+      {
+        path: "exerciseId",
+        select: "name description type difficulty duration reps",
+      },
     ]);
 
     res.json(populated);
@@ -287,7 +318,10 @@ router.post("/challenge-complete", async (req, res) => {
     const populated = await challenge.populate([
       { path: "fromUser", select: "username" },
       { path: "toUser", select: "username" },
-      { path: "exerciseId", select: "name description category" },
+      {
+        path: "exerciseId",
+        select: "name description type difficulty duration reps",
+      },
     ]);
 
     res.json(populated);
@@ -308,7 +342,7 @@ router.get("/active-challenge", async (req, res) => {
     })
       .populate("fromUser", "username")
       .populate("toUser", "username")
-      .populate("exerciseId", "name description category");
+      .populate("exerciseId", "name description type difficulty duration reps");
 
     res.json(activeChallenge || null);
   } catch (err) {

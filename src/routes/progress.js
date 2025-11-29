@@ -1,6 +1,7 @@
 import express from "express";
 import Progress from "../models/Progress.js";
 import { updateChallengeProgress } from "../services/dailyChallengeService.js";
+import { calculateStreak, checkAndAwardBadges } from "./streak.js";
 
 const progressRouter = express.Router();
 
@@ -41,10 +42,23 @@ progressRouter.post("/", async (req, res) => {
       });
     } catch (challengeError) {
       console.error("Error updating challenge progress:", challengeError);
-      // Don't fail the progress creation if challenge update fails
     }
 
-    res.status(201).json(progress);
+    // Check for streak badges
+    let newBadges = [];
+    try {
+      const allProgress = await Progress.find({ userId }).sort({ date: -1 });
+      const currentStreak = calculateStreak(allProgress);
+      newBadges = await checkAndAwardBadges(userId, currentStreak);
+    } catch (streakError) {
+      console.error("Error checking streak badges:", streakError);
+    }
+
+    res.status(201).json({
+      progress,
+      newBadges,
+      badgeEarned: newBadges.length > 0,
+    });
   } catch (error) {
     console.error("Progress POST error:", error);
     res.status(500).json({ message: error.message });
@@ -93,30 +107,37 @@ progressRouter.get("/:userId/summary", async (req, res) => {
 
     const totalCompleted = allProgress.length;
 
-    // Calculate simple streak
-    let streak = 0;
-    let lastDate = null;
+    // Calculate current streak using the streak utility
+    const currentStreak = calculateStreak(allProgress);
 
-    allProgress.forEach((p) => {
-      const pDate = new Date(p.date).toISOString().split("T")[0];
-      if (!lastDate) {
-        streak = 1;
-      } else {
-        const prev = new Date(lastDate);
-        const curr = new Date(pDate);
-        const diff = (curr - prev) / (1000 * 60 * 60 * 24);
-        if (diff === 1) {
-          streak += 1;
-        } else if (diff > 1) {
-          streak = 1;
-        }
-      }
-      lastDate = pDate;
+    // Get earned badges
+    const StreakBadge = (await import("../models/StreakBadge.js")).default;
+    const earnedBadges = await StreakBadge.find({ userId }).sort({
+      milestone: 1,
     });
+
+    // Find next milestone
+    const { STREAK_MILESTONES } = await import("../models/StreakBadge.js");
+    const earnedMilestones = earnedBadges.map((b) => b.milestone);
+    const nextMilestone = STREAK_MILESTONES.find(
+      (m) => !earnedMilestones.includes(m.days)
+    );
 
     res.json({
       totalCompleted,
-      streak,
+      streak: currentStreak,
+      earnedBadges,
+      nextMilestone: nextMilestone || null,
+      progressToNext: nextMilestone
+        ? {
+            current: currentStreak,
+            target: nextMilestone.days,
+            percentage: Math.min(
+              100,
+              Math.round((currentStreak / nextMilestone.days) * 100)
+            ),
+          }
+        : null,
     });
   } catch (error) {
     console.error("Progress summary GET error:", error);

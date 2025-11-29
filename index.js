@@ -11,6 +11,7 @@ import communityRouter from "./src/routes/community.js";
 import dailyChallengeRouter from "./src/routes/dailyChallenge.js";
 import { startDailyChallengeScheduler } from "./src/services/challengeScheduler.js";
 import journalRouter from "./src/routes/journal.js";
+import streakRouter from "./src/routes/streak.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
   errorHandler,
@@ -47,6 +48,9 @@ app.use("/api/progress", authenticate, progressRouter);
 
 // Community / social routes (requires authentication)
 app.use("/api/community", authenticate, communityRouter);
+
+// Streak / badge routes (requires authentication)
+app.use("/api/streak", authenticate, streakRouter);
 
 // Journal routes (requires authentication)
 app.use("/api/journal", authenticate, journalRouter);
