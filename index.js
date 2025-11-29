@@ -12,6 +12,7 @@ import dailyChallengeRouter from "./src/routes/dailyChallenge.js";
 import { startDailyChallengeScheduler } from "./src/services/challengeScheduler.js";
 import journalRouter from "./src/routes/journal.js";
 import streakRouter from "./src/routes/streak.js";
+import leaderboardRouter from "./src/routes/leaderboard.js";
 import { authenticate } from "./src/middleware/auth.js";
 import {
   errorHandler,
@@ -51,6 +52,9 @@ app.use("/api/community", authenticate, communityRouter);
 
 // Streak / badge routes (requires authentication)
 app.use("/api/streak", authenticate, streakRouter);
+
+// Leaderboard routes (requires authentication)
+app.use("/api/leaderboard", authenticate, leaderboardRouter);
 
 // Journal routes (requires authentication)
 app.use("/api/journal", authenticate, journalRouter);
