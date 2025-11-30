@@ -1,244 +1,241 @@
 # Shukuma Backend
 
-Welcome to Shukuma, a robust REST API for exercise management, daily workout cards, and progress tracking.
+<div align="center">
 
-## 🚀 Features
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+![DigitalOcean](https://img.shields.io/badge/DigitalOcean-0080FF?style=for-the-badge&logo=digitalocean&logoColor=white)
 
-- **User Authentication:** Secure registration and login with JWT-based sessions and bcrypt password hashing.
-- **Daily Workout Cards:** Get a randomized daily exercise card, unique per user per day.
-- **Exercise Library:** Browse a comprehensive database of exercises with filtering by difficulty and type.
-- **Progress Tracking:** Log completed workouts with reps, duration, and notes for personal accountability.
-- **Streak Calculation:** Track workout consistency with automatic streak computation.
-- **Protected Routes:** Authentication middleware ensures secure access to user-specific data.
-- **MongoDB Integration:** Persistent storage with Mongoose ODM for flexible data modeling.
-- **Error Handling:** Centralized error handling middleware for consistent API responses.
-- **CORS Enabled:** Cross-origin requests supported for frontend integration.
+</div>
 
-## 🏗️ Project Structure
+A RESTful API powering the Shukuma fitness companion application for exercise management, daily challenges, progress tracking, and community engagement.
+
+---
+
+## Design Decisions
+
+### 1. Date-String Indexing for Daily Records
+
+Daily exercises and challenges use `YYYY-MM-DD` string format instead of Date objects. This simplifies timezone-agnostic queries and creates predictable compound indexes (`userId` + `date`). The trade-off in query flexibility is acceptable given the single-day lookup pattern.
+
+### 2. Pre-Save Password Hashing
+
+User passwords are hashed via a Mongoose `pre('save')` hook using bcrypt with a cost factor of 10. This centralizes security logic in the model layer, ensuring passwords are never stored in plaintext regardless of which route creates the user.
+
+### 3. Exercise Snapshot in Challenges
+
+Friend-to-friend challenges store an `exerciseSnapshot` object alongside the `exerciseId` reference. This denormalization ensures challenge details remain intact even if the referenced exercise is later modified or deleted.
+
+### 4. Weighted Challenge Selection
+
+Daily challenges are generated using a weighted random algorithm. Templates with higher weights (e.g., `complete_exercises`) appear more frequently, while specialized challenges (e.g., `exercise_streak`) provide variety without dominating.
+
+### 5. Middleware-Based Route Protection
+
+Authentication uses a single `authenticate` middleware applied at the router level. This avoids repetitive token validation across endpoints and provides consistent error responses for unauthorized requests.
+
+---
+
+## File Structure
 
 ```
 backend/
-├── index.js              # Express server entry point
-├── package.json          # Dependencies and scripts
-├── Dockerfile            # Container configuration
+├── index.js                    # Server entry point, route registration, scheduler init
+├── package.json                # Dependencies and scripts
+├── Dockerfile                  # Container configuration for deployment
+├── deploy.sh                   # Deployment script
 └── src/
     ├── data/
-    │   ├── exercises.js      # Exercise seed data
-    │   ├── exercises.json    # Exercise JSON database
-    │   └── seedExercises.js  # Database seeding script
+    │   ├── exercises.js        # Exercise seed data (array export)
+    │   ├── exercises.json      # Exercise dataset
+    │   ├── seedExercises.js    # Seeding script for exercises collection
+    │   ├── whiteNoise.js       # White noise track data
+    │   ├── whiteNoise.json     # White noise dataset
+    │   └── seedWhiteNoise.js   # Seeding script for white noise collection
     ├── db/
-    │   └── connect.js        # MongoDB connection logic
+    │   └── connect.js          # MongoDB connection with ping verification
     ├── middleware/
-    │   ├── auth.js           # JWT authentication middleware
-    │   └── errorHandler.js   # Error and 404 handling
-    ├── models/
-    │   ├── User.js           # User schema with password hashing
-    │   ├── Exercise.js       # Exercise schema with validation
-    │   ├── Daily.js          # Daily workout card schema
-    │   └── Progress.js       # Progress tracking schema
-    └── routes/
-        ├── register.js       # User registration endpoint
-        ├── login.js          # User login endpoint
-        ├── daily.js          # Daily workout card logic
-        ├── exercise.js       # Exercise CRUD and filtering
-        └── progress.js       # Progress logging and retrieval
+    │   ├── auth.js             # JWT verification and user hydration
+    │   └── errorHandler.js     # Centralized error and 404 handling
+    ├── models/                 # Mongoose schemas (see MODELS.md)
+    └── routes/                 # Express routers (documented below)
+        └── services/           # Background services (see MODELS.md)
 ```
 
-## 🛠️ Tech Stack
+---
 
-- **Node.js & Express** (REST API framework)
-- **MongoDB & Mongoose** (database and ODM)
-- **JWT** (JSON Web Tokens for auth)
-- **bcrypt** (password hashing)
-- **CORS** (cross-origin resource sharing)
-- **dotenv** (environment configuration)
-
-## 📊 How It Works
-
-1. **Register/Login:** Users create accounts with hashed passwords and receive JWT tokens.
-2. **Get Daily Card:** Authenticated users receive a random exercise for the day (cached per date).
-3. **Browse Exercises:** Explore exercises by difficulty (`easy`, `medium`, `hard`) or type (`core`, `lowerbody`, `cardio`, `upperbody`).
-4. **Log Progress:** Submit completed workouts with reps, duration, and notes.
-5. **Track Streaks:** View workout summaries including total completed exercises and current streak.
-
-## 🔌 API Endpoints
+## API Routes
 
 ### Authentication
 
-- `POST /api/register` - Create new user account
-- `POST /api/login` - Authenticate and receive JWT token
+| Method | Endpoint        | Auth | Description                           |
+| ------ | --------------- | ---- | ------------------------------------- |
+| POST   | `/api/register` | No   | Create user account                   |
+| POST   | `/api/login`    | No   | Authenticate, receive JWT (1h expiry) |
 
-### Daily Workout (Protected)
+**Register** validates username (≥3 chars), email format, and password (≥8 chars). Returns `409` on duplicate username/email.
 
-- `GET /api/daily` - Get today's workout card (auto-generates if none exists)
+**Login** returns a signed JWT containing `userId`. All protected routes expect `Authorization: Bearer <token>`.
 
-### Exercises (Public)
+---
 
-- `GET /api/exercises` - Get all exercises
-- `GET /api/exercises/:id` - Get specific exercise
-- `GET /api/exercises/difficulty/:level` - Filter by difficulty (`easy`, `medium`, `hard`)
-- `GET /api/exercises/type/:type` - Filter by type (`core`, `lowerbody`, `cardio`, `upperbody`)
+### Exercises
 
-### Progress (Protected)
+| Method | Endpoint                           | Auth | Description                                                   |
+| ------ | ---------------------------------- | ---- | ------------------------------------------------------------- |
+| GET    | `/api/exercises`                   | No   | Retrieve all exercises                                        |
+| GET    | `/api/exercises/:id`               | No   | Retrieve single exercise by ID                                |
+| GET    | `/api/exercises/difficulty/:level` | No   | Filter by `easy`, `medium`, `hard`                            |
+| GET    | `/api/exercises/type/:type`        | No   | Filter by `strength`, `cardio`, `core`, `mobility`, `stretch` |
+| GET    | `/api/exercises/random`            | No   | Get one random exercise                                       |
+| POST   | `/api/exercises/:id/complete`      | Yes  | Mark exercise complete, update progress                       |
 
-- `POST /api/progress` - Log completed workout
-- `GET /api/progress/:userId` - Get all progress records for user
-- `GET /api/progress/:userId/today` - Get today's completed workouts
-- `GET /api/progress/:userId/summary` - Get total workouts and current streak
+The `/complete` endpoint creates a `Progress` record, triggers daily challenge progress updates, and prevents duplicate completions for the same exercise on the same day.
 
-### Community & Social (Protected)
+---
 
-- `POST /api/community/share` - Create a post sharing progress/achievements
-- `GET /api/community/feed` - Get recent posts from all users (limit 50)
-- `POST /api/community/like/:postId` - Like a post
-- `POST /api/community/unlike/:postId` - Unlike a post
-- `POST /api/community/friend-request` - Send friend request to a user by username
-- `POST /api/community/friend-accept` - Accept or reject a friend request
-- `POST /api/community/challenge` - Send a challenge to another user
-- `GET /api/community/challenges` - Get all challenges involving authenticated user
-- `GET /api/community/profile/:username` - Get user profile with stats and friend info
+### Daily Card
 
-## 📦 Data Models
+| Method | Endpoint     | Auth | Description                                 |
+| ------ | ------------ | ---- | ------------------------------------------- |
+| GET    | `/api/daily` | Yes  | Get today's exercise card (or generate one) |
 
-### User
+Returns a cached daily exercise for the authenticated user. If none exists for today, randomly selects an exercise and persists the assignment.
 
-```js
-{
-  username: String,        // Unique username
-  email: String,           // Unique email
-  password: String,        // Bcrypt hashed password
-  timestamps: true         // createdAt, updatedAt
-}
-```
+---
 
-### Exercise
+### Daily Challenges
 
-```js
-{
-  name: String,            // Exercise name
-  description: String,     // How to perform
-  type: String,            // core | lowerbody | cardio | upperbody
-  difficulty: String,      // easy | medium | hard
-  demonstration: String,   // Link to demo video/image
-  duration: Number,        // Time in seconds (OR reps, not both)
-  reps: Number,            // Number of repetitions (OR duration)
-  timestamps: true
-}
-```
+| Method | Endpoint                        | Auth | Description                         |
+| ------ | ------------------------------- | ---- | ----------------------------------- |
+| GET    | `/api/daily-challenge`          | Yes  | Get today's challenge (or generate) |
+| POST   | `/api/daily-challenge/complete` | Yes  | Mark challenge as complete          |
+| POST   | `/api/daily-challenge/progress` | Yes  | Update challenge progress manually  |
+| GET    | `/api/daily-challenge/stats`    | Yes  | Get challenge completion statistics |
+| GET    | `/api/daily-challenge/history`  | Yes  | Get past challenges (default: 30)   |
 
-### Daily Exercise
+Challenges are auto-generated at midnight via the scheduler service. Types include `complete_exercises`, `specific_exercise`, `variety_challenge`, and `exercise_streak`.
 
-```js
-{
-  userId: ObjectId,        // Reference to User
-  exerciseId: ObjectId,    // Reference to Exercise
-  date: String,            // YYYY-MM-DD format
-}
-```
+---
 
 ### Progress
 
-```js
-{
-  userId: ObjectId,        // Reference to User
-  exerciseId: ObjectId,    // Reference to Exercise
-  date: String,            // YYYY-MM-DD format
-  completedReps: Number,   // Actual reps completed
-  completedSeconds: Number,// Actual duration completed
-  notes: String,           // User notes
-}
+| Method | Endpoint                        | Auth | Description                                |
+| ------ | ------------------------------- | ---- | ------------------------------------------ |
+| POST   | `/api/progress`                 | Yes  | Log completed workout                      |
+| GET    | `/api/progress/:userId`         | Yes  | Get all progress records for user          |
+| GET    | `/api/progress/:userId/today`   | Yes  | Get today's completed exercises            |
+| GET    | `/api/progress/:userId/summary` | Yes  | Get totals, streak, badges, next milestone |
+
+Progress logging triggers streak badge checks. The summary endpoint returns earned badges and progress toward the next milestone.
+
+---
+
+### Streaks & Badges
+
+| Method | Endpoint                     | Auth | Description                                       |
+| ------ | ---------------------------- | ---- | ------------------------------------------------- |
+| GET    | `/api/streak/badges`         | Yes  | Get authenticated user's badges                   |
+| GET    | `/api/streak/badges/:userId` | Yes  | Get badges for a specific user                    |
+| GET    | `/api/streak/current`        | Yes  | Get current streak, earned badges, next milestone |
+| POST   | `/api/streak/check`          | Yes  | Force badge check and award new badges            |
+
+Milestones: 7 days (Week Warrior), 14 days (Fortnight Fighter), 30 days (Month Master), 60 days (Consistency Champion), 100 days (Century Club).
+
+---
+
+### Leaderboard
+
+| Method | Endpoint                        | Auth | Description                                                |
+| ------ | ------------------------------- | ---- | ---------------------------------------------------------- |
+| GET    | `/api/leaderboard`              | Yes  | Get ranked users (filter: `cards`, `streak`, `challenges`) |
+| GET    | `/api/leaderboard/user/:userId` | Yes  | Get specific user's stats                                  |
+
+Default sort is by total exercise cards completed. The response includes the current user's rank even if outside the returned limit.
+
+---
+
+### Journal
+
+| Method | Endpoint           | Auth | Description                                  |
+| ------ | ------------------ | ---- | -------------------------------------------- |
+| POST   | `/api/journal`     | Yes  | Create journal entry                         |
+| GET    | `/api/journal`     | Yes  | List entries (paginated, filterable by date) |
+| GET    | `/api/journal/:id` | Yes  | Get single entry                             |
+| PUT    | `/api/journal/:id` | Yes  | Update entry                                 |
+| DELETE | `/api/journal/:id` | Yes  | Delete entry                                 |
+
+Entries support optional `mood` (`great`, `good`, `okay`, `bad`, `terrible`) and `tags` array.
+
+---
+
+### Community
+
+| Method | Endpoint                                    | Auth | Description                              |
+| ------ | ------------------------------------------- | ---- | ---------------------------------------- |
+| POST   | `/api/community/share`                      | Yes  | Create post sharing progress/achievement |
+| GET    | `/api/community/feed`                       | Yes  | Get recent posts (limit 50)              |
+| POST   | `/api/community/like/:postId`               | Yes  | Like a post                              |
+| POST   | `/api/community/unlike/:postId`             | Yes  | Unlike a post                            |
+| POST   | `/api/community/comment/:postId`            | Yes  | Add comment to post                      |
+| GET    | `/api/community/comments/:postId`           | Yes  | Get comments for a post                  |
+| DELETE | `/api/community/comment/:postId/:commentId` | Yes  | Delete a comment                         |
+| POST   | `/api/community/friend-request`             | Yes  | Send friend request by username          |
+| POST   | `/api/community/friend-accept`              | Yes  | Accept or reject friend request          |
+| GET    | `/api/community/friends`                    | Yes  | Get friends list (accepted + pending)    |
+| GET    | `/api/community/profile/:username`          | Yes  | Get user profile with stats              |
+| POST   | `/api/community/challenge`                  | Yes  | Send workout challenge to friend         |
+| GET    | `/api/community/challenges`                 | Yes  | Get all challenges (sent and received)   |
+| POST   | `/api/community/challenge-respond`          | Yes  | Accept or decline a challenge            |
+| POST   | `/api/community/challenge-complete`         | Yes  | Mark friend challenge as complete        |
+| GET    | `/api/community/active-challenge`           | Yes  | Get user's active challenge              |
+
+Friend challenges require an accepted friendship. Users can only have one active challenge at a time.
+
+---
+
+### White Noise
+
+| Method | Endpoint           | Auth | Description                             |
+| ------ | ------------------ | ---- | --------------------------------------- |
+| GET    | `/api/white-noise` | No   | Get all white noise tracks (name + URL) |
+
+Audio files are hosted on DigitalOcean Spaces. The endpoint returns CDN URLs for direct client playback.
+
+---
+
+## Deployment
+
+### Render (Application Hosting)
+
+The backend is deployed on [Render](https://render.com) as a web service. The `Dockerfile` defines the container:
+
+```dockerfile
+FROM node:24-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "index.js"]
 ```
 
-### Post
+Environment variables required on Render:
 
-```js
-{
-  userId: ObjectId,        // Reference to User (post author)
-  content: String,         // Post content
-  type: String,            // progress | achievement | announcement (default: progress)
-  meta: Mixed,             // Optional metadata (e.g., { reps: 20 })
-  likes: [ObjectId],       // Array of User IDs who liked this post
-  timestamps: true
-}
-```
+- `MONGO_URI` — MongoDB Atlas connection string
+- `JWT_SECRET` — Secret key for JWT signing
+- `PORT` — Typically `3000` (Render maps external ports automatically)
 
-### Friend
+### DigitalOcean Spaces (Asset Storage)
 
-```js
-{
-  requester: ObjectId,     // Reference to User who sent request
-  recipient: ObjectId,     // Reference to User who received request
-  status: String,          // pending | accepted | rejected
-  timestamps: true
-}
-```
+Static assets (exercise demonstration images, white noise audio files) are hosted on a DigitalOcean Space configured with CDN. The `WhiteNoise` model stores full CDN URLs, enabling direct client access without backend proxying.
 
-### Challenge
+---
 
-```js
-{
-  fromUser: ObjectId,      // Reference to User who sent challenge
-  toUser: ObjectId,        // Reference to User who received challenge
-  exerciseId: ObjectId,    // Reference to Exercise (optional)
-  message: String,         // Challenge message
-  status: String,          // pending | accepted | declined
-  timestamps: true
-}
-```
+## Data Models & Services
 
-## 🖥️ Getting Started
-
-```bash
-git clone https://github.com/siyabuilds/shukuma
-cd shukuma/backend
-npm install
-
-# Create .env file
-echo "MONGODB_URI=your_mongodb_connection_string" >> .env
-echo "JWT_SECRET=your_secret_key" >> .env
-echo "PORT=3000" >> .env
-
-# Run in development mode
-npm run dev
-
-# Run in production
-npm start
-```
-
-## 🔒 Authentication Flow
-
-1. User registers via `/api/register` with username, email, and password
-2. Password is automatically hashed using bcrypt before storage
-3. User logs in via `/api/login` and receives JWT token
-4. Token must be included in `Authorization: Bearer <token>` header for protected routes
-5. Middleware validates token and attaches user object to `req.user`
-
-## 🎯 Key Features Explained
-
-### Daily Workout Cards
-
-- One exercise per user per day
-- Automatically generated on first access
-- Cached to prevent multiple exercises in one day
-- Randomly selected from entire exercise database
-
-### Progress Tracking
-
-- Prevents duplicate submissions for same exercise on same day
-- Supports both time-based and rep-based exercises
-- Calculates streaks based on consecutive days of completion
-- Provides summary statistics for motivation
-
-### Exercise Validation
-
-- Exercises must have EITHER duration OR reps (not both)
-- Pre-validation hook ensures data integrity
-- Supports four exercise types and three difficulty levels
-
-## 🌱 Future Plans
-
-- Exercise recommendation algorithm based on user progress
-- Advanced analytics (weekly/monthly trends, muscle group distribution)
-- REST API rate limiting and caching with Redis
-- Notifications for friend requests and challenges
-- Challenge completion tracking with proof of progress
+For detailed schema definitions, data flow patterns, and service documentation, see **[MODELS.md](./MODELS.md)**.
