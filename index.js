@@ -18,6 +18,7 @@ import {
   errorHandler,
   notFoundHandler,
 } from "./src/middleware/errorHandler.js";
+import whiteNoiseRouter from "./src/routes/whitenoise.js";
 
 dotenv.config();
 
@@ -58,6 +59,9 @@ app.use("/api/leaderboard", authenticate, leaderboardRouter);
 
 // Journal routes (requires authentication)
 app.use("/api/journal", authenticate, journalRouter);
+
+// White Noise routes
+app.use("/api/white-noise", whiteNoiseRouter);
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Bird Sounds",
+    "url": "https://shukuma.syd1.digitaloceanspaces.com/ambient/bird_sounds.mp3"
+  },
+  {
+    "name": "Brown Noise",
+    "url": "https://shukuma.syd1.digitaloceanspaces.com/ambient/brown_noise.mp3"
+  },
+  {
+    "name": "Ocean Waves",
+    "url": "https://shukuma.syd1.digitaloceanspaces.com/ambient/ocean_waves.mp3"
+  },
+  {
+    "name": "Forest River",
+    "url": "https://shukuma.syd1.digitaloceanspaces.com/ambient/forest_river.mp3"
+  },
+  {
+    "name": "Thunderstorm",
+    "url": "https://shukuma.syd1.digitaloceanspaces.com/ambient/thunderstorm.mp3"
+  }
+]
